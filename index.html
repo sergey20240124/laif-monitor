@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en"><head><meta name="robots" content="noindex,nofollow"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LAIF SOLUTIONS</title><style>
+  :root { --ink:#eaf1fb; --dim:#6d82a3; --faint:#3b4c68; --hair:#1b2d48; --line:#17283f;
+          --ground:#0a1628; --edge:#ffd60a; --ease:cubic-bezier(.16,1,.3,1); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { background:#030916; }
+  body { font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+         color:var(--ink); min-height:100vh; padding:28px 32px 64px;
+         font-feature-settings:"tnum" 1; -webkit-font-smoothing:antialiased;
+         background:radial-gradient(1100px 580px at 14% -12%, rgba(56,124,255,.18), transparent 70%),
+                    radial-gradient(820px 460px at 94% 0%, rgba(96,196,255,.09), transparent 70%),
+                    var(--ground); }
+  .wrap { max-width:1500px; margin:0 auto; }
+  .top { display:flex; align-items:baseline; justify-content:space-between;
+         padding-bottom:18px; border-bottom:1px solid var(--hair); }
+  .top h1 { font-size:13px; font-weight:700; letter-spacing:.22em; text-transform:uppercase; }
+  .stamp { font-size:11px; letter-spacing:.1em; color:var(--dim); text-transform:uppercase; }
+  .tabs { display:flex; gap:8px; margin:22px 0 26px; flex-wrap:wrap; }
+  .tabs button { font:inherit; font-size:11px; font-weight:700; letter-spacing:.14em;
+                 text-transform:uppercase; color:var(--dim); background:none;
+                 border:1px solid var(--line); border-radius:999px; padding:9px 18px;
+                 cursor:pointer; transition:all .18s var(--ease); }
+  .tabs button:hover { color:var(--ink); border-color:#2c4a70; }
+  .tabs button.on { color:#07101f; background:var(--edge); border-color:var(--edge); }
+  .pane { display:none; } .pane.on { display:block; }
+  .cols { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px;
+          align-items:start; }
+  .block { display:grid; grid-template-rows:auto auto 1fr; }
+  .blabel { font-size:11px; font-weight:700; letter-spacing:.2em; text-transform:uppercase;
+            color:var(--ink); margin-bottom:12px; }
+  .blabel span { color:var(--faint); font-weight:600; letter-spacing:.1em;
+                 margin-left:10px; }
+  .kpis { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;
+          margin-bottom:20px; }
+  .kpi { border:1px solid var(--line); border-radius:12px; padding:16px 18px;
+         background:linear-gradient(180deg, rgba(132,178,255,.07), rgba(132,178,255,.02)); }
+  .k { font-size:10px; font-weight:600; letter-spacing:.17em; text-transform:uppercase;
+       color:var(--dim); margin-bottom:8px; }
+  .v { font-size:30px; font-weight:650; letter-spacing:-.02em; }
+  .stack { display:grid; grid-template-rows:1fr 1fr; gap:22px; }
+  section { border:1px solid var(--line); border-radius:14px; padding:18px 20px 14px;
+            background:linear-gradient(180deg, rgba(132,178,255,.05), rgba(132,178,255,.015)); }
+  section.wide { margin-top:22px; }
+  h3 { font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+       color:var(--ink); margin-bottom:14px; }
+  h3 span { color:var(--faint); font-weight:600; margin-left:10px; letter-spacing:.1em; }
+  .chart { position:relative; }
+  .chart svg { width:100%; height:150px; display:block; }
+  .hz { position:absolute; top:0; left:0; right:0; height:150px; }
+  .hz span { position:absolute; top:0; height:100%; cursor:default; }
+  .hz span:hover { background:rgba(124,196,255,.10); }
+  .hz i { display:none; position:absolute; top:4px; left:50%; transform:translateX(-50%);
+          white-space:nowrap; font-style:normal; font-size:11px; letter-spacing:.06em;
+          color:var(--dim); background:#060f1f; border:1px solid var(--hair);
+          border-radius:6px; padding:5px 9px; z-index:2; pointer-events:none; }
+  .hz i b { display:block; font-size:15px; font-weight:650; letter-spacing:-.01em;
+            color:#fff; }
+  .hz span:hover i { display:block; }
+  .hz span:first-child i { left:0; transform:none; }
+  .hz span:last-child i { left:auto; right:0; transform:none; }
+  .ticks { position:relative; height:16px; margin-top:6px; }
+  .ticks span { position:absolute; transform:translateX(-50%); font-size:9px;
+                letter-spacing:.08em; color:#fff; white-space:nowrap; }
+  .peak { margin-top:6px; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+          color:var(--dim); }
+  .none { padding:28px 0; color:var(--dim); font-size:12px; }
+  .util { width:100%; border-collapse:collapse; }
+  .util th { text-align:right; font-size:10px; font-weight:700; letter-spacing:.16em;
+             text-transform:uppercase; color:var(--dim); padding-bottom:10px; }
+  .util th:first-child, .util td:first-child { text-align:left; }
+  .util td { text-align:right; font-size:15px; font-weight:600; padding:9px 0;
+             border-top:1px solid var(--hair); white-space:nowrap; }
+  .util .nm { font-size:12px; font-weight:500; color:#a8bbd6; max-width:0; width:46%;
+              overflow:hidden; text-overflow:ellipsis; padding-right:16px; }
+  .util .nm a { color:#a8bbd6; text-decoration:none;
+                border-bottom:1px solid rgba(168,187,214,.3); }
+  .util .nm a:hover { color:var(--edge); border-bottom-color:var(--edge); }
+  .util td.warn { color:#ffd60a; } .util td.over { color:#fb7185; }
+  .foot { margin-top:12px; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+          color:var(--faint); }
+  @media (max-width:1250px) { .cols { grid-template-columns:1fr; gap:30px; } }
+  @media (max-width:700px) { .kpis { grid-template-columns:1fr; } }
+
+  .mb-embed { max-width:calc((100% - 26px) / 2); }
+  .tabs { margin-top:22px; }
+  .splined rect { fill:#5a7fd4 !important; opacity:.30 !important; }
+  .splined rect:last-of-type { opacity:.42 !important; }
+  .ygrid { position:absolute; top:0; left:0; right:0; height:150px;
+            pointer-events:none; }
+  .ygrid span { position:absolute; left:0; transform:translateY(-50%);
+                 font-size:9px; letter-spacing:.06em; color:#5b7099;
+                 background:rgba(6,15,31,.72); padding:0 4px; border-radius:3px; }
+
+  .themes th.grp-a, .themes th.grp-b, .themes th.grp-c {
+    border-bottom:1px solid var(--hair); padding-bottom:6px; }
+  .themes tr.grp th { font-size:9px; color:var(--faint); }
+  .themes td.dimmed { color:var(--faint); font-size:12px; }
+  .themes td.blank { color:var(--faint); }
+  .themes td.up { color:#34d399; } .themes td.down { color:#fb7185; }
+  .warn-box { margin-top:18px; padding:14px 16px; border:1px solid #4a3a12;
+              border-radius:10px; background:rgba(255,214,10,.05);
+              font-size:12px; line-height:1.6; color:#d9c89a; }
+  .warn-box b { color:var(--edge); }
+
+  .adperf td.faint { color:var(--faint); font-size:11px; }
+  .adperf td.up { color:#34d399; }
+  .adperf tr.today td { color:var(--edge); }
+  .adperf tr.today td.dimmed, .adperf tr.today td.faint { color:#b89b2e; }
+  .adperf tr.tot td { border-top:1px solid var(--dim); font-weight:700; }
+  .adperf th.grp-a, .adperf th.grp-b, .adperf th.grp-c {
+    border-bottom:1px solid var(--hair); padding-bottom:6px; }
+</style></head><body>
+<div class="wrap">
+  <div class="top">
+    <h1>LAIF SOLUTIONS · 2026-11-13 <span style="color:var(--faint)">Los Angeles</span></h1>
+    <div class="stamp">03:17 LA · built Fri 13 Nov, 13:17</div>
+  </div>
+  <div class="tabs"><button data-tab="live">Live</button></div>
+  <div class="pane" data-tab="live">
+      <div class="cols">
+        <div class="block">
+          <div class="blabel">Today
+            <span>2026-11-13 · Los Angeles</span></div>
+        <div class="kpis">
+          <div class="kpi"><div class="k">Sales today</div><div class="v">$19.98</div></div>
+          <div class="kpi"><div class="k">Spend today</div><div class="v">$1.42</div></div>
+          <div class="kpi"><div class="k">TACoS today</div><div class="v">7.1%</div></div>
+        </div>
+          <div class="stack">
+            <section><h3>Total sales · today <span>hourly, Seller Central</span></h3>
+      <div class="chart">
+        <svg viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+<rect x="0.0" y="10.0" width="70.0" height="150.0" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="73.0" y="159.0" width="70.0" height="1.0" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="146.0" y="10.0" width="70.0" height="150.0" fill="#ffd60a" opacity=".95" rx="1"/>
+        </svg>
+        <div class="ticks"><span style="left:3.50%">12AM</span><span style="left:10.80%">1AM</span><span style="left:18.10%">2AM</span></div>
+        <div class="peak">peak $9.99 at 12AM</div>
+      </div>
+            </section>
+            <section><h3>Spend · today <span>between readings — 1 so far</span></h3>
+<div class="none">needs two readings before a step can be drawn</div>
+            </section>
+          </div>
+        </div>
+
+        <div class="block">
+          <div class="blabel">Window
+            <span>from 2026-11-10 · 4 days</span></div>
+        <div class="kpis">
+          <div class="kpi"><div class="k">Sales window</div><div class="v">$1,570</div></div>
+          <div class="kpi"><div class="k">Spend window</div><div class="v">$464</div></div>
+          <div class="kpi"><div class="k">TACoS window</div><div class="v">29.6%</div></div>
+        </div>
+          <div class="stack">
+            <section><h3>Total sales · window <span>daily, Seller Central · curve = 3-day average, own scale</span></h3>
+      <div class="chart splined">
+        <svg viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+<line x1="0" y1="123.4" x2="1000" y2="123.4" stroke="#2a3a5c" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/><line x1="0" y1="86.8" x2="1000" y2="86.8" stroke="#2a3a5c" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/><line x1="0" y1="50.1" x2="1000" y2="50.1" stroke="#2a3a5c" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/><line x1="0" y1="13.5" x2="1000" y2="13.5" stroke="#2a3a5c" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/><rect x="100.0" y="86.1" width="50.0" height="73.9" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="350.0" y="100.1" width="50.0" height="59.9" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="600.0" y="10.0" width="50.0" height="150.0" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="850.0" y="156.3" width="50.0" height="3.7" fill="#ffd60a" opacity=".95" rx="1"/><defs><linearGradient id="g53020" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b96bff" stop-opacity=".34"/><stop offset="55%" stop-color="#a855f7" stop-opacity=".10"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0"/></linearGradient></defs><path d="M125.0,86.1 C166.7,88.4 291.7,112.8 375.0,100.1 C458.3,87.5 541.7,0.6 625.0,10.0 C708.3,19.4 833.3,132.0 875.0,156.3 L875.0,160 L125.0,160 Z" fill="url(#g53020)" stroke="none"/><path d="M125.0,86.1 C166.7,88.4 291.7,112.8 375.0,100.1 C458.3,87.5 541.7,0.6 625.0,10.0 C708.3,19.4 833.3,132.0 875.0,156.3" fill="none" stroke="#a855f7" stroke-width="11" opacity=".16" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M125.0,86.1 C166.7,88.4 291.7,112.8 375.0,100.1 C458.3,87.5 541.7,0.6 625.0,10.0 C708.3,19.4 833.3,132.0 875.0,156.3" fill="none" stroke="#b96bff" stroke-width="5" opacity=".34" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M125.0,86.1 C166.7,88.4 291.7,112.8 375.0,100.1 C458.3,87.5 541.7,0.6 625.0,10.0 C708.3,19.4 833.3,132.0 875.0,156.3" fill="none" stroke="#d8a6ff" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        </svg><div class="ygrid"><span style="top:77.11%">$200</span><span style="top:54.22%">$400</span><span style="top:31.33%">$600</span><span style="top:8.45%">$800</span></div>
+        <div class="hz"><span style="left:10.00%;width:25.00%"><i><b>$404</b>11/10</i></span><span style="left:35.00%;width:25.00%"><i><b>$327</b>11/11</i></span><span style="left:60.00%;width:25.00%"><i><b>$819</b>11/12</i></span><span style="left:85.00%;width:25.00%"><i><b>$19.98</b>11/13 · partial</i></span></div>
+        <div class="ticks"><span style="left:12.50%">11/10</span><span style="left:37.50%">11/11</span><span style="left:62.50%">11/12</span><span style="left:87.50%">11/13</span></div>
+        <div class="peak">peak $819 at 11/12</div>
+      </div>
+            </section>
+            <section><h3>Spend · window <span>daily, Ads console · curve = 3-day average, own scale</span></h3>
+      <div class="chart splined">
+        <svg viewBox="0 0 1000 160" preserveAspectRatio="none" aria-hidden="true">
+<line x1="0" y1="106.8" x2="1000" y2="106.8" stroke="#2a3a5c" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/><line x1="0" y1="53.5" x2="1000" y2="53.5" stroke="#2a3a5c" stroke-width="1" opacity=".55" vector-effect="non-scaling-stroke"/><rect x="100.0" y="106.1" width="50.0" height="53.9" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="350.0" y="117.4" width="50.0" height="42.6" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="600.0" y="10.0" width="50.0" height="150.0" fill="#7cc4ff" opacity=".8" rx="1"/><rect x="850.0" y="159.0" width="50.0" height="1.0" fill="#ffd60a" opacity=".95" rx="1"/><defs><linearGradient id="g81265" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#b96bff" stop-opacity=".34"/><stop offset="55%" stop-color="#a855f7" stop-opacity=".10"/><stop offset="100%" stop-color="#a855f7" stop-opacity="0"/></linearGradient></defs><path d="M125.0,133.1 C166.7,117.1 291.7,44.6 375.0,36.9 C458.3,29.3 541.7,83.9 625.0,87.1 C708.3,90.3 833.3,61.3 875.0,56.2 L875.0,160 L125.0,160 Z" fill="url(#g81265)" stroke="none"/><path d="M125.0,133.1 C166.7,117.1 291.7,44.6 375.0,36.9 C458.3,29.3 541.7,83.9 625.0,87.1 C708.3,90.3 833.3,61.3 875.0,56.2" fill="none" stroke="#a855f7" stroke-width="11" opacity=".16" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M125.0,133.1 C166.7,117.1 291.7,44.6 375.0,36.9 C458.3,29.3 541.7,83.9 625.0,87.1 C708.3,90.3 833.3,61.3 875.0,56.2" fill="none" stroke="#b96bff" stroke-width="5" opacity=".34" stroke-linecap="round" vector-effect="non-scaling-stroke"/><path d="M125.0,133.1 C166.7,117.1 291.7,44.6 375.0,36.9 C458.3,29.3 541.7,83.9 625.0,87.1 C708.3,90.3 833.3,61.3 875.0,56.2" fill="none" stroke="#d8a6ff" stroke-width="2" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+        </svg><div class="ygrid"><span style="top:66.72%">$100</span><span style="top:33.44%">$200</span></div>
+        <div class="hz"><span style="left:10.00%;width:25.00%"><i><b>$101</b>11/10</i></span><span style="left:35.00%;width:25.00%"><i><b>$80.03</b>11/11</i></span><span style="left:60.00%;width:25.00%"><i><b>$282</b>11/12</i></span><span style="left:85.00%;width:25.00%"><i><b>$1.42</b>11/13</i></span></div>
+        <div class="ticks"><span style="left:12.50%">11/10</span><span style="left:37.50%">11/11</span><span style="left:62.50%">11/12</span><span style="left:87.50%">11/13</span></div>
+        <div class="peak">peak $282 at 11/12</div>
+      </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      <section class="wide"><h3>Budget utilisation · today <span>over 80%</span></h3>
+<div class="none">no campaign over 80% of its daily budget — 129 checked</div>
+      </section>
+  </div>
+  
+  
+  
+</div>
+<script>
+(function () {
+  var btns = [].slice.call(document.querySelectorAll('.tabs button'));
+  var panes = [].slice.call(document.querySelectorAll('.pane'));
+  function show(t) {
+    btns.forEach(function (b) { b.classList.toggle('on', b.dataset.tab === t); });
+    panes.forEach(function (p) { p.classList.toggle('on', p.dataset.tab === t); });
+    try { localStorage.setItem('board-tab', t); } catch (e) {}
+  }
+  btns.forEach(function (b) { b.onclick = function () { show(b.dataset.tab); }; });
+  var want = null;
+  try { want = localStorage.getItem('board-tab'); } catch (e) {}
+  show(btns.some(function (b) { return b.dataset.tab === want; }) ? want
+       : (btns[0] && btns[0].dataset.tab));
+})();
+</script>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Say so on the page rather than failing silently - this is the one setting that can
+  // flatten the whole entrance, and it is invisible from the outside.
+  // Always state the mode, not only the bad one - "no rotation" is impossible to diagnose
+  // from outside the browser, and this turns it into one glance.
+  var hint = document.querySelector('.hint');
+  var baseHint = reduce ? 'motion: REDUCED' : 'motion: full';
+  if (hint) {
+    hint.textContent = baseHint + ' · click to replay';
+    if (reduce) { hint.style.color = '#fb7185'; hint.style.fontWeight = '700'; }
+  }
+  // Mirrors the CSS sequence above. No per-card and no per-digit stagger: every card
+  // arrives at once, and within a figure the wheels start and land together.
+  // Read the timings BACK OUT OF THE CSS, so the script cannot disagree with the sequence
+  // it is part of - including under reduced motion, where the variables are redefined.
+  function ms(name) {
+    var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    var n = parseFloat(v);
+    if (!isFinite(n)) return 0;
+    return v.slice(-2) === 'ms' ? n : n * 1000;
+  }
+  var SPIN_AT = ms('--t-spin'), SPIN = ms('--t-spin-dur');
+  // Ease IN and out, like a real wheel: a pure ease-out front-loads the whole revolution
+  // into the first few hundred ms and then crawls, which is invisible and unconvincing.
+  var SPIN_EASE = 'cubic-bezier(.5,0,.2,1)';
+  var cards = [].slice.call(document.querySelectorAll('.card'));
+  var timers = [];
+
+  // Remember each figure's settled text ONCE, then rebuild it as digit wheels.
+  // The plain text stays in the HTML until this runs, so a JS-less page still reads right.
+  function build(el) {
+    if (el.getAttribute('data-final') === null) el.setAttribute('data-final', el.textContent);
+    if (el.querySelector('.d')) return;                  // already a wheel
+    var s = el.getAttribute('data-final'), frag = document.createDocumentFragment();
+    for (var i = 0; i < s.length; i++) {
+      var c = s.charAt(i);
+      if (c >= '0' && c <= '9') {
+        var d = document.createElement('span'); d.className = 'd';
+        var strip = document.createElement('span'); strip.className = 'strip';
+        for (var k = 0; k < 20; k++) {                   // 0-9 twice: one full turn, then land
+          var cell = document.createElement('span');
+          cell.className = 'cell'; cell.textContent = String(k % 10);
+          strip.appendChild(cell);
+        }
+        strip.setAttribute('data-face', String(10 + parseInt(c, 10)));
+        d.appendChild(strip); frag.appendChild(d);
+      } else {
+        var t = document.createElement('span'); t.className = 'c'; t.textContent = c;
+        frag.appendChild(t);
+      }
+    }
+    el.textContent = '';
+    el.appendChild(frag);
+  }
+
+  // Only the big figure gets wheels.
+  cards.forEach(function (card) {
+    [].slice.call(card.querySelectorAll('.hero .val')).forEach(build);
+  });
+
+  // ---- the opening sound --------------------------------------------------------
+  // Plays an audio file sitting NEXT TO THE PAGE, so the track is yours and the page just
+  // points at it. Drop one in as morning_board/intro.mp3 (.m4a/.ogg/.wav also tried) and
+  // it is picked up on the next open; with no file there the page is simply silent.
+  var SOUND_FILES = ['intro.mp3', 'intro.m4a', 'intro.ogg', 'intro.wav'];
+  var SOUND_FADE = 600;                       // ms of fade at the end of the sequence
+  var audio = null, muted = false, fadeTimer = null;
+  try { muted = localStorage.getItem('mb-muted') === '1'; } catch (e) {}
+
+  (function find(i) {                          // first file that loads wins
+    if (i >= SOUND_FILES.length) return;
+    var a = new Audio(SOUND_FILES[i]);
+    a.preload = 'auto';
+    a.addEventListener('canplaythrough', function () { if (!audio) audio = a; });
+    a.addEventListener('error', function () { find(i + 1); });
+    a.load();
+  })(0);
+
+  function sound() {
+    if (muted) return true;                    // nothing to report, by choice
+    if (!audio) return false;
+    clearInterval(fadeTimer);
+    try { audio.pause(); audio.currentTime = 0; } catch (e) {}
+    audio.volume = 1;
+    var started = audio.play();
+    if (started && started.catch) started.catch(function () {});
+
+    // Fade out so the track ENDS WITH THE SEQUENCE rather than running on past it.
+    var total = ms('--t-spin') + ms('--t-spin-dur') + 400;
+    setTimeout(function () {
+      var steps = 20, step = 0;
+      fadeTimer = setInterval(function () {
+        step++;
+        audio.volume = Math.max(0, 1 - step / steps);
+        if (step >= steps) { clearInterval(fadeTimer); try { audio.pause(); } catch (e) {} }
+      }, SOUND_FADE / 20);
+    }, Math.max(0, total - SOUND_FADE));
+    return !audio.paused;
+  }
+
+  function play(withSound) {
+    timers.forEach(clearTimeout);
+    timers = [];
+    if (withSound !== false && hint) {
+      // Once audio is unblocked, put the motion readout back - it is the diagnostic.
+      hint.textContent = (sound() ? baseHint
+                          : (audio ? 'click for sound' : 'no intro file')) + ' · click to replay';
+    }
+
+    // One class restarts the whole CSS sequence, the ::before wash included - a pseudo
+    // element cannot be reached through element.style, so it has to be driven this way.
+    document.body.classList.remove('go');
+    cards.forEach(function (card) {
+      [].slice.call(card.querySelectorAll('.hero .val .strip')).forEach(function (st) {
+        st.style.transition = 'none';                    // back to the first 0
+        st.style.transform = 'translateY(0)';
+      });
+    });
+    void document.body.offsetWidth;
+    document.body.classList.add('go');
+
+    cards.forEach(function (card) {
+      var strips = [].slice.call(card.querySelectorAll('.hero .val .strip'));
+      timers.push(setTimeout(function () {
+        strips.forEach(function (st) {                   // all wheels, one duration, one landing
+          st.style.transition = 'transform ' + SPIN + 'ms ' + SPIN_EASE;
+          st.style.transform = 'translateY(-' + st.getAttribute('data-face') + 'em)';
+        });
+      }, SPIN_AT));
+    });
+
+    // SAFETY NET. A wheel that never turns shows 0, not the figure - and the transition
+    // genuinely does not run in some places: a background tab is throttled, and on a
+    // tabbed host page the card can sit in a display:none pane, where visibilitychange
+    // never fires because the PAGE is visible. Without this the card reads $000,000.
+    // After the spin should have finished, snap anything still at the start into place.
+    // It cannot misfire during a real spin: mid-transition the transform is not identity,
+    // and a landed wheel is at -10em or beyond, never 0.
+    timers.push(setTimeout(function () {
+      cards.forEach(function (card) {
+        [].slice.call(card.querySelectorAll('.hero .val .strip')).forEach(function (st) {
+          var m = getComputedStyle(st).transform;
+          if (m === 'none' || m === 'matrix(1, 0, 0, 1, 0, 0)') {
+            st.style.transition = 'none';
+            st.style.transform = 'translateY(-' + st.getAttribute('data-face') + 'em)';
+          }
+        });
+      });
+    }, SPIN_AT + SPIN + 400));
+  }
+
+  // A tab that LOADS IN THE BACKGROUND is the one way this honestly shows nothing: the
+  // browser throttles timers and rAF, so the 2s entrance burns down unseen and the page is
+  // already settled by the time it is looked at. Same for a bfcache back/forward restore.
+  // So: play when actually visible, and again whenever the page is shown afresh.
+  // Click the brand to turn the card over. stopPropagation, or the page-wide replay
+  // handler below would fire the whole entrance every time you flip.
+  [].slice.call(document.querySelectorAll('.brand')).forEach(function (b) {
+    b.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var card = b.closest('.card');
+      if (card) card.classList.toggle('flipped');
+    });
+  });
+
+  // The mute toggle lives in the header and must not also trigger a replay.
+  var snd = document.querySelector('.snd');
+  function paintSnd() {
+    if (!snd) return;
+    snd.textContent = muted ? 'sound off' : 'sound on';
+    snd.className = 'snd' + (muted ? ' off' : '');
+  }
+  paintSnd();
+  if (snd) snd.addEventListener('click', function (e) {
+    e.stopPropagation();
+    muted = !muted;
+    try { localStorage.setItem('mb-muted', muted ? '1' : '0'); } catch (err) {}
+    paintSnd();
+  });
+
+  if (document.visibilityState === 'visible') play();
+  // Coming back to the tab replays the VISUALS only - an engine starting every time the
+  // window regains focus would be a nuisance rather than a treat.
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') play(false);
+  });
+  window.addEventListener('pageshow', function (e) { if (e.persisted) play(false); });
+
+  // Click anywhere to run it again, sound and all - and because Chrome blocks audio until
+  // the page has been interacted with, this same click is what unblocks it the first time.
+  document.addEventListener('click', function () {
+    if (!window.getSelection || String(window.getSelection()) === '') play();
+  });
+})();
+</script>
+</body></html>
